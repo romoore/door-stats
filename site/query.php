@@ -97,8 +97,8 @@ foreach($response as $entry){
 //	echo print_r($entry);
 
 	$roomName = "";
-	$opened = [ "current" => 0, "week" => 0, "4week" => 0, "3month" => 0, "1year" => 0 , "older" => 0];
-	$closed = [ "current" => 0, "week" => 0, "4week" => 0, "3month" => 0, "1year" => 0 , "older" => 0];
+	$opened = array( "current" => 0, "week" => 0, "4week" => 0, "3month" => 0, "1year" => 0 , "older" => 0);
+	$closed = array( "current" => 0, "week" => 0, "4week" => 0, "3month" => 0, "1year" => 0 , "older" => 0);
 
 	foreach($attributes as $attr){
 		if($attr['attributeName'] == "displayName"){
@@ -114,13 +114,13 @@ foreach($response as $entry){
 	}
 
 	if($roomName != ""){
-		$roomCountYear["$roomName"] = [
+		$roomCountYear["$roomName"] = array(
 			  "current" => $opened["current"],
 				"week" => $opened["week"],
 				"4week" => $opened["4week"],
 				"3month" => $opened["3month"],
 				"1year" => $opened["1year"]
-				];
+				);
 	}
 }
 
