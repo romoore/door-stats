@@ -136,14 +136,16 @@ function buildRoomDataTable($owlJsonArray, $dateFormat="Y-m-d") {
 			}else if($attr['attributeName'] == "closed"){
 				if($attr["data"] == "false"){
 					$dateParts = explode("T",$attr['creationDate']);
-					$hour = intval(explode(":",$dateParts[1])[0]);
-					$date = new DateTime($dateParts[0]);
-					if($hour > 12){
+					$timeZone = explode("+",$attr['creationDate'])[1];
+					$date = new DateTime($attr['creationDate']);
+					$date->setTimeZone(new DateTimeZone(date_default_timezone_get()));
+					$hour = $date->format("H");
+					$date = new DateTime($date->format("Y-m-d"));
+					if($hour >= 12){
 						$date->add(new DateInterval('PT18H'));
 					}else {
 						$date->add(new DateInterval('PT6H'));
 					}
-					$date->setTimeZone(new DateTimeZone(date_default_timezone_get()));
 					$dateString = $date->format($dateFormat);
 					if(!array_key_exists($dateString, $countByDate)){
 						$countByDate[$dateString] = 0;
