@@ -62,8 +62,8 @@
 
 				// Set chart options
 				var options = {'title':'Door Usage by Date',
-											 'width':600,
-											 'height':480};
+											 'width':1160,
+											 'height':600};
 				// Instantiate and draw our chart, passing in some options.
 				var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
 				var dataTable = google.visualization.arrayToDataTable(<?php echo $dataTable; ?>)
@@ -75,6 +75,6 @@
 
   <body>
 <!--Div that will hold the pie chart-->
-    <div id="chart_div" style="width:800; height:640"></div>
+    <div id="chart_div" style="width:1200; height:640"></div>
   </body>
 </html>
