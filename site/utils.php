@@ -123,6 +123,7 @@ function buildMainDataTable($owlJsonArray, $useLinks=false){
 
 function buildRoomDataTable($owlJsonArray, $dateFormat="Y-m-d") {
 	$countByDate = array();
+	$dateByString = array();
 	foreach($owlJsonArray as $entry){
 		$attributes = $entry["attributes"];
 	//	echo print_r($entry);
@@ -134,32 +135,53 @@ function buildRoomDataTable($owlJsonArray, $dateFormat="Y-m-d") {
 				$roomName = $attr["data"];
 			}else if($attr['attributeName'] == "closed"){
 				if($attr["data"] == "false"){
-					$date = new DateTime($attr['creationDate']);
+					$dateParts = explode("T",$attr['creationDate']);
+					$hour = intval(explode(":",$dateParts[1])[0]);
+					$date = new DateTime($dateParts[0]);
+					if($hour > 12){
+						$date->add(new DateInterval('PT18H'));
+					}else {
+						$date->add(new DateInterval('PT6H'));
+					}
 					$date->setTimeZone(new DateTimeZone(date_default_timezone_get()));
 					$dateString = $date->format($dateFormat);
 					if(!array_key_exists($dateString, $countByDate)){
 						$countByDate[$dateString] = 0;
 					}
 					$countByDate[$dateString] += 1;
+					$dateByString[$dateString] = $date;
 				}
 			}
 		}
 
 	}
 
-	$returnString = "[['Date','Times Open'],";
+	/* New stuff */
+
+	$returnString = 
+								"{"
+									."cols:["
+										."{id:'date',label:'Date',type:'date'},\n"
+										."{id:'count',label:'Times Open',type:'number'}],\n"
+										."rows:[\n";
 	if(empty($countByDate)){
-		$returnString .= "['N/A',0]";
-	} else {
+		$returnString .= "{c:[{v: new Date(2000, 1, 1), f: 'Jan 1, 2000'}]},";
+	}
+	else {
 		ksort($countByDate);
-		foreach($countByDate as $date => $count){
-			$returnString .= "['$date', $count],";
+		
+		foreach($countByDate as $dateString => $count){
+			$date = $dateByString[$dateString];
+			$returnString .= "{c:[{v: new Date("
+										.$date->format('Y').", "
+										.$date->format('m').", "
+										.$date->format('d').", "
+										.$date->format('H')."), f:'$dateString'}, {v: $count, f: '$count'}]},\n";
 		}
 	}
-
-	$returnString .= ']';
-
+	$returnString .= "\n]}";
 	return $returnString;
+
 
 }
 ?>

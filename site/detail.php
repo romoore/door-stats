@@ -63,10 +63,12 @@
 				// Set chart options
 				var options = {'title':'Door Usage by Date',
 											 'width':1160,
-											 'height':600};
+											 'height':600,
+											 'pointSize':3,
+											 'theme':'maximized'};
 				// Instantiate and draw our chart, passing in some options.
 				var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
-				var dataTable = google.visualization.arrayToDataTable(<?php echo $dataTable; ?>)
+				var dataTable = new google.visualization.DataTable(<?php echo $dataTable; ?>)
 				chart.draw(dataTable, options);
 			}
 	
