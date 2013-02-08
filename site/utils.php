@@ -135,8 +135,8 @@ function buildRoomDataTable($owlJsonArray, $dateFormat="Y-m-d") {
 				$roomName = $attr["data"];
 			}else if($attr['attributeName'] == "closed"){
 				if($attr["data"] == "false"){
-					$dateParts = explode("T",$attr['creationDate']);
-					$timeZone = explode("+",$attr['creationDate'])[1];
+					$timeZoneArr = explode("+",$attr['creationDate']);
+					$timeZone = $timeZoneArr[1];
 					$date = new DateTime($attr['creationDate']);
 					$date->setTimeZone(new DateTimeZone(date_default_timezone_get()));
 					$hour = $date->format("H");
