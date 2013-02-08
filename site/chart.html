@@ -37,7 +37,8 @@
 				// Set chart options
 				var options = {'title':'Door Usage by Room',
 											 'width':600,
-											 'height':480};
+											 'height':480,
+											 'allowHtml':true};
 				// Instantiate and draw our chart, passing in some options.
 				var chart = new google.visualization.Table(document.getElementById('chart_div'));
 				chart.draw(response.getDataTable(), options);

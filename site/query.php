@@ -5,12 +5,17 @@
  error_reporting(-1);
 
 
-/*
- * Google Chart Tools Datasource Handler for Owl Platform
- *
- * Takes a Google Chart request and accesses an Owl Platform REST
- * interface to retrieve the requested chart data.
- */
+header('Content-type: application/json');
+
+if(empty($_GET)) {
+	$responseString = "{status:'error',"
+			."errors:[{reason:'invalid_request',"
+			."message:'Missing reqId in request.'}]}";
+	echo $responseString;
+	return;
+}
+
+require_once("utils.php");
 
 $OWL_HOST="http://localhost";
 $OWL_REST_PATH="/grailrest/";
@@ -18,52 +23,25 @@ $OWL_RANGE_PATH="range";
 
 $LATEST_DAY = "last saturday";
 
-$reqId = 1;
-$roomId = "hill.room.270";
-$roomName = "Hill 270";
-$currentDate = microtime();
+$roomRegEx = ".*";
 
-// These defaults are required for the data source to handle.
-$tqx = "reqId:1;version:0.6;out:json;responseHandler:callback";
+if(array_key_exists("tqx",$_GET)){
+	$tqx = htmlspecialchars($_GET["tqx"]);
+}else {
+	$responseString = "{status:'error',"
+			."errors:[{reason:'invalid_request',"
+			."message:'Missing tqx request.'}]}";
+	echo $responseString;
+	return;
 
-function getDateRange($dateAsString, $until) {
-
-$today=1000 * strtotime($until);
-$yearAgo=1000 * strtotime("$until - 365 day" );
-$weekAgo = 1000 * strtotime( "$until - 7 day" );
-$monthAgo = 1000 * strtotime( "$until - 4 week" );
-$quarterAgo = 1000 * strtotime( "$until - 3 month" );
-  //$date = DateTime::createFromFormat('Y-m-d*H:i:s*T',$dateAsString);
-  $date = new DateTime($dateAsString);
-	$asDate = $date->getTimestamp()*1000;
-
-
-	if($asDate < $yearAgo) {
-		return "older";
-	}
-	if($asDate < $quarterAgo) {
-		return "1year";
-	}
-	if($asDate < $monthAgo) {
-		return "3month";
-	}
-	if($asDate < $weekAgo) {
-		return "4week";
-	}
-	if($asDate > $today) {
-		return "current";
-	}
-	return "week";
 }
 
-if(empty($_GET)) {
-	// Use defaults (above)
-}
-else {
- $tqx = htmlspecialchars($_GET["tqx"]);
+if(array_key_exists("r",$_GET)) {
+	$roomRegEx = htmlspecialchars($_GET["r"]);
 }
 
 $reqParams = explode(";",$tqx);
+$reqId = "";
 
 foreach ($reqParams as $pair) {
 	$keyVal = explode(":",$pair);
@@ -72,6 +50,13 @@ foreach ($reqParams as $pair) {
 	}
 }
 
+if($reqId == ""){
+	$responseString = "{status:'error',"
+			."errors:[{reason:'invalid_request',"
+			."message:'Missing reqId in request.'}]}";
+	echo $responseString;
+	return;
+}
 
 // Fake it to just test the chart
 
@@ -83,12 +68,13 @@ if(array_key_exists("HTTP_X_DATASOURCE_AUTH",$_SERVER)){
 $today=1000 * time();
 $yearAgo=1000 * strtotime( date( "Y-m-d", time() ) . " - 365 day" );
 
-$rawJson = file_get_contents( "$OWL_HOST$OWL_REST_PATH$OWL_RANGE_PATH?q=hill.room.*&st=$yearAgo&et=$today" );
+$rawJson = file_get_contents( "$OWL_HOST$OWL_REST_PATH$OWL_RANGE_PATH?q=$roomRegEx&st=$yearAgo&et=$today" );
 $response = json_decode( $rawJson, true );
 
 
 
 $roomCount = array();
+$roomIds = array();
 
 //echo print_r($response);
 // Iterate over each identifier array
@@ -104,7 +90,7 @@ foreach($response as $entry){
 		if($attr['attributeName'] == "displayName"){
 			$roomName = $attr["data"];
 		}else if($attr['attributeName'] == "closed"){
-			$dateKey = getDateRange($attr['creationDate'], $LATEST_DAY);
+			$dateKey = getDateClass($attr['creationDate'], $LATEST_DAY);
 			if($attr["data"] == "true"){
 				$closed["$dateKey"] = $closed["$dateKey"] + 1;
 			}else {
@@ -120,7 +106,8 @@ foreach($response as $entry){
 				"4week" => $opened["4week"],
 				"3month" => $opened["3month"],
 				"1year" => $opened["1year"]
-				);
+			);
+		$roomIds[$roomName]=$entry["identifier"];
 	}
 }
 
@@ -142,11 +129,11 @@ $returnString =
 								."rows:[";
 foreach($roomCountYear as $room => $count){
 	$returnString = $returnString . "{c:[{v:'$room',f:'$room'},"
-																. "{v:".$count['current'].",f:'".$count['current']."'},"
-																. "{v:".$count['week'].",f:'".$count['week']."'},"
-																. "{v:".$count['4week'].",f:'".$count['4week']."'},"
-																. "{v:".$count['3month'].",f:'".$count['3month']."'},"
-																. "{v:".$count['1year'].",f:'".$count['1year']."'}]},";
+																. "{v:".$count['current'].",f:'<a href=\"detail.php?r=".$roomIds[$room]."&s=c\">".$count['current']."</a>'},"
+																. "{v:".$count['week'].",f:'<a href=\"detail.php?r=".$roomIds[$room]."&s=w\">".$count['week']."</a>'},"
+																. "{v:".$count['4week'].",f:'<a href=\"detail.php?r=".$roomIds[$room]."&s=m\">".$count['4week']."</a>'},"
+																. "{v:".$count['3month'].",f:'<a href=\"detail.php?r=".$roomIds[$room]."&s=q\">".$count['3month']."</a>'},"
+																. "{v:".$count['1year'].",f:'<a href=\"detail.php?r=".$roomIds[$room]."&s=y\">".$count['1year']."</a>'}]},";
 }
 /*
 									."{c:[{v:'Hill 270',f:'Hill 270'},{v:1.0,f:'1'},{v:5.1,f:'5.1'}]},"
@@ -155,6 +142,5 @@ foreach($roomCountYear as $room => $count){
  */
 $returnString = substr($returnString,0,-1) . "]}}";
 
-header('Content-type: application/json');
 echo $returnString;
 ?>
