@@ -1,5 +1,7 @@
 <?php
 
+date_default_timezone_set('America/New_York');
+
 /*
  * Determines in what "class" a date belongs, based on the past offset
  * from the "$until" value.
@@ -17,6 +19,7 @@ function getDateClass($dateAsString, $until) {
 	$quarterAgo = 1000 * strtotime( "$until - 3 month" );
 	
 	$date = new DateTime($dateAsString);
+	$date->setTimeZone(new DateTimeZone(date_default_timezone_get()));
 	$asDate = $date->getTimestamp()*1000;
 
 	if($asDate < $yearAgo) {
@@ -126,14 +129,13 @@ function buildRoomDataTable($owlJsonArray, $dateFormat="Y-m-d") {
 
 		$roomName = "";
 
-		$LATEST_DAY = strtotime('last saturday');
-
 		foreach($attributes as $attr){
 			if($attr['attributeName'] == "displayName"){
 				$roomName = $attr["data"];
 			}else if($attr['attributeName'] == "closed"){
 				if($attr["data"] == "false"){
 					$date = new DateTime($attr['creationDate']);
+					$date->setTimeZone(new DateTimeZone(date_default_timezone_get()));
 					$dateString = $date->format($dateFormat);
 					if(!array_key_exists($dateString, $countByDate)){
 						$countByDate[$dateString] = 0;
