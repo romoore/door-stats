@@ -140,12 +140,14 @@ function buildRoomDataTable($owlJsonArray, $dateFormat="Y-m-d") {
 					$date = new DateTime($attr['creationDate']);
 					$date->setTimeZone(new DateTimeZone(date_default_timezone_get()));
 					$hour = $date->format("H");
-					$date = new DateTime($date->format("Y-m-d"));
+					$date = new DateTime($date->format($dateFormat).":00");
+		/*
 					if($hour >= 12){
 						$date->add(new DateInterval('PT18H'));
 					}else {
 						$date->add(new DateInterval('PT6H'));
 					}
+		 */
 					$dateString = $date->format($dateFormat);
 					if(!array_key_exists($dateString, $countByDate)){
 						$countByDate[$dateString] = 0;
@@ -163,7 +165,7 @@ function buildRoomDataTable($owlJsonArray, $dateFormat="Y-m-d") {
 	$returnString = 
 								"{"
 									."cols:["
-										."{id:'date',label:'Date',type:'date'},\n"
+										."{id:'date',label:'Date',type:'datetime'},\n"
 										."{id:'count',label:'Times Open',type:'number'}],\n"
 										."rows:[\n";
 	if(empty($countByDate)){
@@ -176,9 +178,9 @@ function buildRoomDataTable($owlJsonArray, $dateFormat="Y-m-d") {
 			$date = $dateByString[$dateString];
 			$returnString .= "{c:[{v: new Date("
 										.$date->format('Y').", "
-										.$date->format('m').", "
+										.($date->format('m')-1).", "
 										.$date->format('d').", "
-										.$date->format('H')."), f:'$dateString'}, {v: $count, f: '$count'}]},\n";
+										.$date->format('H').",0), f:'$dateString'}, {v: $count, f: '$count'}]},\n";
 		}
 	}
 	$returnString .= "\n]}";

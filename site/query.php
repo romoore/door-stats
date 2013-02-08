@@ -128,11 +128,16 @@ $returnString =
 								."rows:[";
 foreach($roomCountYear as $room => $count){
 	$returnString = $returnString . "{c:[{v:'$room',f:'$room'},"
-																. "{v:".$count['current'].",f:'<a href=\"detail.php?r=".$roomIds[$room]."&s=c\">".$count['current']."</a>'},"
-																. "{v:".$count['week'].",f:'<a href=\"detail.php?r=".$roomIds[$room]."&s=w\">".$count['week']."</a>'},"
-																. "{v:".$count['4week'].",f:'<a href=\"detail.php?r=".$roomIds[$room]."&s=m\">".$count['4week']."</a>'},"
-																. "{v:".$count['3month'].",f:'<a href=\"detail.php?r=".$roomIds[$room]."&s=q\">".$count['3month']."</a>'},"
-																. "{v:".$count['1year'].",f:'<a href=\"detail.php?r=".$roomIds[$room]."&s=y\">".$count['1year']."</a>'}]},";
+																. "{v:".$count['current']
+																.",f:'<a href=\"detail.php?r=".$roomIds[$room]."&s=c\">".$count['current']."</a>'},"
+																. "{v:".$count['week']
+																.",f:'<a href=\"detail.php?r=".$roomIds[$room]."&s=w\">".$count['week']."</a>'},"
+																. "{v:".$count['4week']
+																.",f:'<a href=\"detail.php?r=".$roomIds[$room]."&s=m\">".$count['4week']."</a>'},"
+																. "{v:".$count['3month']
+																.",f:'<a href=\"detail.php?r=".$roomIds[$room]."&s=q\">".$count['3month']."</a>'},"
+																. "{v:".$count['1year']
+																.",f:'<a href=\"detail.php?r=".$roomIds[$room]."&s=y\">".$count['1year']."</a>'}]},";
 }
 /*
 									."{c:[{v:'Hill 270',f:'Hill 270'},{v:1.0,f:'1'},{v:5.1,f:'5.1'}]},"

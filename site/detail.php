@@ -22,12 +22,12 @@
 	$start = 1000 * strtotime('one year ago');
 	$format = "Y M";
 	if($span == "c"){
-		$format = "Y-m-d A";
-		$start = 1000 * strtotime('last saturday');
-		$end = 1000 * time();
+		$format = "Y-m-d H:00";
+		$start = 1000 * strtotime('last sunday');
+		$end = 1000 * strtotime('this saturday');
 	}
 	if($span == "w"){
-		$format = "Y-m-d A";
+		$format = "Y-m-d H:00";
 		$start = 1000 * strtotime('last saturday - 6 day');
 	}else if($span == "m"){
 		$start = 1000 * strtotime('last saturday - 4 week');
@@ -61,11 +61,19 @@
 
 
 				// Set chart options
-				var options = {'title':'Door Usage by Date',
-											 'width':1160,
-											 'height':600,
-											 'pointSize':3,
-											 'theme':'maximized'};
+				var options = {title:'Door Usage by Date',
+											 width:1160,
+											 height:600,
+											 pointSize:4,
+											 theme:'maximized',
+<?php if($span == "w" || $span == "c") {
+	$startDate = DateTime::createFromFormat("U",$start/1000);
+	$endDate = DateTime::createFromFormat("U",$end/1000);
+	echo "hAxis: {gridlines: {count: 8}, viewWindow: {min:";
+	echo " new Date(".$startDate->format("Y").",".($startDate->format("m")-1).",".$startDate->format("d")."), max:";
+  echo " new Date(".$endDate->format("Y").",".($endDate->format("m")-1).",".$endDate->format("d").")}},";
+} ?>
+				};
 				// Instantiate and draw our chart, passing in some options.
 				var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
 				var dataTable = new google.visualization.DataTable(<?php echo $dataTable; ?>)
