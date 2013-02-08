@@ -16,9 +16,8 @@ if(empty($_GET)) {
 }
 
 require_once("utils.php");
+require_once("conn.php");
 
-$OWL_HOST="http://localhost";
-$OWL_REST_PATH="/grailrest/";
 $OWL_RANGE_PATH="range";
 
 $LATEST_DAY = "last saturday";
@@ -68,7 +67,7 @@ if(array_key_exists("HTTP_X_DATASOURCE_AUTH",$_SERVER)){
 $today=1000 * time();
 $yearAgo=1000 * strtotime( date( "Y-m-d", time() ) . " - 365 day" );
 
-$rawJson = file_get_contents( "$OWL_HOST$OWL_REST_PATH$OWL_RANGE_PATH?q=$roomRegEx&st=$yearAgo&et=$today" );
+$rawJson = file_get_contents( "$OWL_URL$OWL_RANGE_PATH?q=$roomRegEx&st=$yearAgo&et=$today" );
 $response = json_decode( $rawJson, true );
 
 

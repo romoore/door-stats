@@ -16,6 +16,7 @@
 
 
 	require_once("utils.php");
+	require_once("conn.php");
 
 	$end = 1000 * strtotime('last saturday');
 	$start = 1000 * strtotime('one year ago');
@@ -35,12 +36,13 @@
 		$start = 1000 * strtotime('last saturday - 3 month');
 		$format = "Y M";
 	}
-	$owlData = retrieveFromOwl("http://localhost/grailrest/range?",$room, $start, $end);
+	$owlData = retrieveFromOwl($OWL_URL."range?",$room, $start, $end);
 	$dataTable = buildRoomDataTable($owlData,$format);
 ?>
-
+<!DOCTYPE html>
 <html>
-  <head>
+	<head>
+		<title>Details for Room <?php echo $room; ?></title>
     <!--Load the AJAX API-->
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <script type="text/javascript">
