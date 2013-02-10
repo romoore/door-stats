@@ -65,7 +65,6 @@
 											 width:1160,
 											 height:600,
 											 pointSize:4,
-											 theme:'maximized',
 <?php if($span == "w" || $span == "c") {
 	$startDate = DateTime::createFromFormat("U",$start/1000);
 	$endDate = DateTime::createFromFormat("U",$end/1000);
