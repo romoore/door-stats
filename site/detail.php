@@ -18,22 +18,22 @@
 	require_once("utils.php");
 	require_once("conn.php");
 
-	$end = 1000 * strtotime('last saturday');
+	$end = 1000 * strtotime('last sunday');
 	$start = 1000 * strtotime('one year ago');
 	$format = "Y M";
 	if($span == "c"){
 		$format = "Y-m-d H:00";
 		$start = 1000 * strtotime('last sunday');
-		$end = 1000 * strtotime('this saturday');
+		$end = 1000 * strtotime('this sunday');
 	}
 	if($span == "w"){
 		$format = "Y-m-d H:00";
-		$start = 1000 * strtotime('last saturday - 6 day');
+		$start = 1000 * strtotime('last sunday - 7 day');
 	}else if($span == "m"){
-		$start = 1000 * strtotime('last saturday - 4 week');
+		$start = 1000 * strtotime('last sunday - 4 week');
 		$format = "Y-m-d";
 	} else if($span == "q") {
-		$start = 1000 * strtotime('last saturday - 3 month');
+		$start = 1000 * strtotime('last sunday - 3 month');
 		$format = "Y M";
 	}
 	$owlData = retrieveFromOwl($OWL_URL."range?",$room, $start, $end);
