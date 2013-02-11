@@ -116,7 +116,7 @@ foreach($response as $entry){
 
 //print_r($roomCountYear);
 
-$latestDayString = date("M j, Y", strtotime($LATEST_DAY));
+$latestDayString = date("M j, Y", strtotime($LATEST_DAY.' - 1 day'));
 
 $returnString = 
 						"{reqId:$reqId,"
