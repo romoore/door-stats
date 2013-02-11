@@ -62,7 +62,7 @@ function buildMainDataTable($owlJsonArray, $useLinks=false){
 		$opened = array( "current" => 0, "week" => 0, "4week" => 0, "3month" => 0, "1year" => 0 , "older" => 0);
 		$closed = array( "current" => 0, "week" => 0, "4week" => 0, "3month" => 0, "1year" => 0 , "older" => 0);
 
-		$LATEST_DAY = strtotime('last saturday');
+		$LATEST_DAY = strtotime('last sunday');
 
 		foreach($attributes as $attr){
 			if($attr['attributeName'] == "displayName"){

@@ -20,7 +20,11 @@ require_once("conn.php");
 
 $OWL_RANGE_PATH="range";
 
-$LATEST_DAY = "last saturday";
+
+$LATEST_DAY = "last sunday";
+if(date('w',time()) == 0){
+	$LATEST_DAY = "today";
+}
 
 $roomRegEx = ".*";
 

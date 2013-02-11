@@ -18,24 +18,33 @@
 	require_once("utils.php");
 	require_once("conn.php");
 
-	$end = 1000 * strtotime('last sunday');
-	$start = 1000 * strtotime('one year ago');
-	$format = "Y M";
-	if($span == "c"){
-		$format = "Y-m-d H:00";
-		$start = 1000 * strtotime('last sunday');
-		$end = 1000 * strtotime('this sunday');
+	// Default values (current week)
+	
+	// Starting on the most recent Sunday
+	$startString = "last sunday";
+	// Ending "right now"
+	$endString = "now";
+	if(date("w",time()) == 0){
+		$startString = "today";
+		$endString = "next sunday";
 	}
+	$format = "Y-m-d H:00";
+
+	// Previous week (sunday to saturday)
 	if($span == "w"){
-		$format = "Y-m-d H:00";
-		$start = 1000 * strtotime('last sunday - 7 day');
+		$endString = $startString;
+		$startString = $startString . ' - 7 day';
 	}else if($span == "m"){
-		$start = 1000 * strtotime('last sunday - 4 week');
+		$endString = $startString;
+		$startString = $startString . ' - 4 week';
 		$format = "Y-m-d";
 	} else if($span == "q") {
-		$start = 1000 * strtotime('last sunday - 3 month');
+		$endString = $startString;
+		$startString = $startString . ' - 3 month';
 		$format = "Y M";
 	}
+	$end = 1000 * strtotime($endString);
+	$start = 1000 * strtotime($startString);
 	$owlData = retrieveFromOwl($OWL_URL."range?",$room, $start, $end);
 	$dataTable = buildRoomDataTable($owlData,$format);
 ?>
