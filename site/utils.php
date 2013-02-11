@@ -129,7 +129,22 @@ function buildMainDataTable($owlJsonArray, $useLinks=false){
 	return $returnString;
 }
 
-function buildRoomDataTable($owlJsonArray, $dateFormat="Y-m-d") {
+/*
+ * From 
+ * <http://stackoverflow.com/questions/834303/php-startswith-and-endswith-functions>
+ * Author: mrhus <http://stackoverflow.com/users/63557/mrhus>
+ */
+function endsWith($haystack, $needle)
+{
+    $length = strlen($needle);
+    if ($length == 0) {
+        return true;
+    }
+
+    return (substr($haystack, -$length) === $needle);
+}
+
+function buildRoomDataTable($owlJsonArray, $dateFormat="Y-m-d", $startDate, $endDate) {
 	$countByDate = array();
 	$dateByString = array();
 	foreach($owlJsonArray as $entry){
@@ -151,13 +166,6 @@ function buildRoomDataTable($owlJsonArray, $dateFormat="Y-m-d") {
 					if($dateFormat == "Y-m-d H"){
 						$date .= ":00";
 					}
-		/*
-					if($hour >= 12){
-						$date->add(new DateInterval('PT18H'));
-					}else {
-						$date->add(new DateInterval('PT6H'));
-					}
-		 */
 					$dateString = $date->format($dateFormat);
 					if(!array_key_exists($dateString, $countByDate)){
 						$countByDate[$dateString] = 0;
@@ -182,10 +190,74 @@ function buildRoomDataTable($owlJsonArray, $dateFormat="Y-m-d") {
 		$returnString .= "{c:[{v: new Date(2000, 1, 1), f: 'Jan 1, 2000'}]},";
 	}
 	else {
-		ksort($countByDate);
+		asort($dateByString);
+
+
+		$copyDateByString = array();
+		$copyCountByDate = array();
+		$someDate = $startDate;
+		$previousDate = $someDate;
+		$inZeroGap = false;
+		while($someDate <= $endDate){
+			$someString = $someDate->format($dateFormat);
+			// Adding some placeholder zeros
+			if(!array_key_exists($someString, $dateByString)){
+				if(!$inZeroGap){
+					$copyDateByString[$someString] = clone $someDate;
+					$copyCountByDate[$someString] = 0;
+					$inZeroGap = true;
+				}
+			}
+			// Actual data
+			else {
+				// Draw zero point just before
+				if($inZeroGap){
+					$previousString = $previousDate->format($dateFormat);
+					if(!array_key_exists($previousString, $dateByString)){
+						$copyDateByString[$previousString] = $previousDate;
+						$copyCountByDate[$previousString] = 0;
+						$inZeroGap = false;
+					}
+				}
+				$copyDateByString[$someString] = $dateByString[$someString];
+				$copyCountByDate[$someString] = $countByDate[$someString];
+				$inZeroGap = false;
+			}
+			$previousDate = clone $someDate;
+			if(endsWith($dateFormat, ":00")){
+				$someDate->add(new DateInterval("PT1H"));
+			}else if(endsWith($dateFormat, "d")) {
+				$someDate->add(new DateInterval("P1D"));
+			}else {
+				$someDate->add(new DateInterval("P1M"));
+			}
+
+			if($someDate->getTimestamp() > time()){
+				$previousString = $previousDate->format($dateFormat);
+				if(!array_key_exists($previousString, $dateByString)){
+					$copyDateByString[$previousString] = $previousDate;
+					$copyCountByDate[$previousString] = 0;
+				}
+				break;
+			}
+		}
+		if($endDate->getTimestamp() < time()){
+			$endString = $endDate->format($dateFormat);
+			if(!array_key_exists($endString, $dateByString)){
+				$copyDateByString[$endString] = $endDate;
+				$copyCountByDate[$endString] = 0;
+			}
+		}
+
 		
-		foreach($countByDate as $dateString => $count){
-			$date = $dateByString[$dateString];
+
+		$countByDate = $copyCountByDate;
+		$dateByString = $copyDateByString;
+
+		asort($dateByString);
+		
+		foreach($dateByString as $dateString => $date){
+			$count = $countByDate[$dateString];
 			$returnString .= "{c:[{v: new Date("
 										.$date->format('Y').", "
 										.($date->format('m')-1).", "

@@ -56,7 +56,11 @@
 	$end = 1000 * strtotime($endString);
 	$start = 1000 * strtotime($startString);
 	$owlData = retrieveFromOwl($OWL_URL."range?",$room, $start, $end);
-	$dataTable = buildRoomDataTable($owlData,$format);
+	$startDate = DateTime::createFromFormat("U",$start/1000);
+	$startDate->setTimeZone(new DateTimeZone(date_default_timezone_get()));
+	$endDate = DateTime::createFromFormat("U",$end/1000);
+	$endDate->setTimeZone(new DateTimeZone(date_default_timezone_get()));
+	$dataTable = buildRoomDataTable($owlData,$format,$startDate,$endDate);
 ?>
 <!DOCTYPE html>
 <html>
