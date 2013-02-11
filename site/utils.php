@@ -2,6 +2,13 @@
 
 date_default_timezone_set('America/New_York');
 
+const OLDER = 4;
+const YEAR = 3;
+const QUARTER = 2;
+const MONTH = 1;
+const WEEK = 0;
+const CURRENT_WEEK = -1;
+
 /*
  * Determines in what "class" a date belongs, based on the past offset
  * from the "$until" value.
@@ -23,21 +30,21 @@ function getDateClass($dateAsString, $until) {
 	$asDate = $date->getTimestamp()*1000;
 
 	if($asDate < $yearAgo) {
-		return "older";
+		return OLDER;
 	}
 	if($asDate < $quarterAgo) {
-		return "1year";
+		return YEAR;
 	}
 	if($asDate < $monthAgo) {
-		return "3month";
+		return QUARTER;
 	}
 	if($asDate < $weekAgo) {
-		return "4week";
+		return MONTH;
 	}
 	if($asDate > $today) {
-		return "current";
+		return CURRENT_WEEK;
 	}
-	return "week";
+	return WEEK;
 }
 
 function retrieveFromOwl($owlUrl, $roomRegEx, $fromDate, $toDate){
@@ -59,8 +66,8 @@ function buildMainDataTable($owlJsonArray, $useLinks=false){
 	//	echo print_r($entry);
 
 		$roomName = "";
-		$opened = array( "current" => 0, "week" => 0, "4week" => 0, "3month" => 0, "1year" => 0 , "older" => 0);
-		$closed = array( "current" => 0, "week" => 0, "4week" => 0, "3month" => 0, "1year" => 0 , "older" => 0);
+		$opened = array( -1 => 0, 0 => 0, 1 => 0, 2 => 0, 3 => 0 , 4 => 0);
+		$closed = array( -1 => 0, 0 => 0, 1 => 0, 2 => 0, 3 => 0 , 4 => 0);
 
 		$LATEST_DAY = strtotime('last sunday');
 
@@ -78,8 +85,9 @@ function buildMainDataTable($owlJsonArray, $useLinks=false){
 		}
 
 		if($roomName != ""){
+			ksort($opened);
 			$roomCountYear["$roomName"] = array(
-					"current" => $opened["current"],
+					-1 => $opened[-1],
 					"week" => $opened["week"],
 					"4week" => $opened["4week"],
 					"3month" => $opened["3month"],
@@ -139,8 +147,10 @@ function buildRoomDataTable($owlJsonArray, $dateFormat="Y-m-d") {
 					$timeZone = $timeZoneArr[1];
 					$date = new DateTime($attr['creationDate']);
 					$date->setTimeZone(new DateTimeZone(date_default_timezone_get()));
-					$hour = $date->format("H");
-					$date = new DateTime($date->format($dateFormat).":00");
+					$date = new DateTime($date->format($dateFormat));
+					if($dateFormat == "Y-m-d H"){
+						$date .= ":00";
+					}
 		/*
 					if($hour >= 12){
 						$date->add(new DateInterval('PT18H'));

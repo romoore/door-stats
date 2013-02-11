@@ -23,7 +23,7 @@
 	// Starting on the most recent Sunday
 	$startString = "last sunday";
 	// Ending "right now"
-	$endString = "now";
+	$endString = "this sunday";
 	if(date("w",time()) == 0){
 		$startString = "today";
 		$endString = "next sunday";
@@ -34,14 +34,24 @@
 	if($span == "w"){
 		$endString = $startString;
 		$startString = $startString . ' - 7 day';
-	}else if($span == "m"){
+	}
+	// 4 weeks
+	else if($span == "m"){
 		$endString = $startString;
 		$startString = $startString . ' - 4 week';
 		$format = "Y-m-d";
-	} else if($span == "q") {
+	} 
+	// Quarter (3 months)
+	else if($span == "q") {
 		$endString = $startString;
 		$startString = $startString . ' - 3 month';
 		$format = "Y M";
+	} 
+	// Year
+	else if($span == "y"){
+		$endString = $startString;
+		$startString = $startString . ' - 1 year';
+		$format = "M Y";
 	}
 	$end = 1000 * strtotime($endString);
 	$start = 1000 * strtotime($startString);
@@ -74,13 +84,19 @@
 											 width:1160,
 											 height:600,
 											 pointSize:4,
-<?php if($span == "w" || $span == "c") {
-	$startDate = DateTime::createFromFormat("U",$start/1000);
-	$endDate = DateTime::createFromFormat("U",$end/1000);
-	echo "hAxis: {gridlines: {count: 8}, viewWindow: {min:";
+<?php 
+$startDate = DateTime::createFromFormat("U",$start/1000);
+$endDate = DateTime::createFromFormat("U",$end/1000);
+echo "hAxis: {viewWindow: {min:";
+if($span == "w" || $span == "c" || $span == "m") {
 	echo " new Date(".$startDate->format("Y").",".($startDate->format("m")-1).",".$startDate->format("d")."), max:";
   echo " new Date(".$endDate->format("Y").",".($endDate->format("m")-1).",".$endDate->format("d").")}},";
-} ?>
+}else {
+	echo " new Date(".$startDate->format("Y").",".($startDate->format("m")-1)."), max:";
+  echo " new Date(".$endDate->format("Y").",".($endDate->format("m")-1).")}},";
+}	
+
+?>
 				};
 				// Instantiate and draw our chart, passing in some options.
 				var chart = new google.visualization.LineChart(document.getElementById('chart_div'));

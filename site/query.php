@@ -86,8 +86,8 @@ foreach($response as $entry){
 //	echo print_r($entry);
 
 	$roomName = "";
-	$opened = array( "current" => 0, "week" => 0, "4week" => 0, "3month" => 0, "1year" => 0 , "older" => 0);
-	$closed = array( "current" => 0, "week" => 0, "4week" => 0, "3month" => 0, "1year" => 0 , "older" => 0);
+	$opened = array( CURRENT_WEEK => 0, WEEK => 0, MONTH => 0, QUARTER => 0, YEAR => 0 , OLDER => 0);
+	$closed = array( CURRENT_WEEK => 0, WEEK => 0, MONTH => 0, QUARTER => 0, YEAR => 0 , OLDER => 0);
 
 	foreach($attributes as $attr){
 		if($attr['attributeName'] == "displayName"){
@@ -104,11 +104,11 @@ foreach($response as $entry){
 
 	if($roomName != ""){
 		$roomCountYear["$roomName"] = array(
-			  "current" => $opened["current"],
-				"week" => $opened["week"],
-				"4week" => $opened["4week"],
-				"3month" => $opened["3month"],
-				"1year" => $opened["1year"]
+			  CURRENT_WEEK => $opened[CURRENT_WEEK],
+				WEEK => $opened[WEEK],
+				MONTH => $opened[MONTH],
+				QUARTER => $opened[QUARTER],
+				YEAR => $opened[YEAR]
 			);
 		$roomIds[$roomName]=$entry["identifier"];
 	}
@@ -131,17 +131,23 @@ $returnString =
 									."{id:'12month',label:'1 Year Ending $latestDayString',type:'number'}],"
 								."rows:[";
 foreach($roomCountYear as $room => $count){
-	$returnString = $returnString . "{c:[{v:'$room',f:'$room'},"
-																. "{v:".$count['current']
-																.",f:'<a href=\"detail.php?r=".$roomIds[$room]."&s=c\">".$count['current']."</a>'},"
-																. "{v:".$count['week']
-																.",f:'<a href=\"detail.php?r=".$roomIds[$room]."&s=w\">".$count['week']."</a>'},"
-																. "{v:".$count['4week']
-																.",f:'<a href=\"detail.php?r=".$roomIds[$room]."&s=m\">".$count['4week']."</a>'},"
-																. "{v:".$count['3month']
-																.",f:'<a href=\"detail.php?r=".$roomIds[$room]."&s=q\">".$count['3month']."</a>'},"
-																. "{v:".$count['1year']
-																.",f:'<a href=\"detail.php?r=".$roomIds[$room]."&s=y\">".$count['1year']."</a>'}]},";
+	$sumToYear = 0;
+	$returnString = $returnString . "{c:[{v:'$room',f:'$room'},";
+	$sumToYear = $count[CURRENT_WEEK];
+	$returnString .= "{v:".$sumToYear
+									.",f:'<a href=\"detail.php?r=".$roomIds[$room]."&s=c\">".$sumToYear."</a>'},";
+	$sumToYear = $count[WEEK];
+	$returnString .= "{v:".$sumToYear
+									.",f:'<a href=\"detail.php?r=".$roomIds[$room]."&s=w\">".$sumToYear."</a>'},";
+	$sumToYear += $count[MONTH];
+	$returnString .= "{v:".$sumToYear
+									.",f:'<a href=\"detail.php?r=".$roomIds[$room]."&s=m\">".$sumToYear."</a>'},";
+	$sumToYear += $count[QUARTER];
+	$returnString .= "{v:".$sumToYear
+									.",f:'<a href=\"detail.php?r=".$roomIds[$room]."&s=q\">".$sumToYear."</a>'},";
+	$sumToYear += $count[YEAR];
+	$returnString .= "{v:".$sumToYear
+									.",f:'<a href=\"detail.php?r=".$roomIds[$room]."&s=y\">".$sumToYear."</a>'}]},";
 }
 /*
 									."{c:[{v:'Hill 270',f:'Hill 270'},{v:1.0,f:'1'},{v:5.1,f:'5.1'}]},"
