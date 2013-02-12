@@ -26,7 +26,7 @@ if(date('w',time()) == 0){
 	$LATEST_DAY = "today";
 }
 
-$roomRegEx = "winlab.*";
+$roomRegEx = "(hill|core|cbim).*";
 
 if(array_key_exists("tqx",$_GET)){
 	$tqx = htmlspecialchars($_GET["tqx"]);
@@ -70,14 +70,15 @@ if(array_key_exists("HTTP_X_DATASOURCE_AUTH",$_SERVER)){
 
 $today=1000 * time();
 $yearAgo=1000 * strtotime( date( "Y-m-d", time() ) . " - 365 day" );
-
-$rawJson = file_get_contents( OWL_URL.$OWL_RANGE_PATH."?q=$roomRegEx&st=$yearAgo&et=$today" );
+$roomRegEx = urlencode($roomRegEx);
+$rawJson = file_get_contents(OWL_URL.$OWL_RANGE_PATH."?q=$roomRegEx&st=$yearAgo&et=$today");
 $response = json_decode( $rawJson, true );
 
 
 
-$roomCount = array();
+$roomCountYear = array();
 $roomIds = array();
+$studentMap = getRoomToStudentsMap();
 
 //echo print_r($response);
 // Iterate over each identifier array
@@ -128,7 +129,8 @@ $returnString =
 									."{id:'week',label:'Week Ending $latestDayString',type:'number'},"
 									."{id:'4week',label:'4 Weeks Ending $latestDayString', type:'number'},"
 									."{id:'3month',label:'3 Months Ending $latestDayString', type:'number'},"
-									."{id:'12month',label:'1 Year Ending $latestDayString',type:'number'}],"
+									."{id:'12month',label:'1 Year Ending $latestDayString',type:'number'},"
+									."{id:'occupants',label:'Students',type: 'string'}],"
 								."rows:[";
 foreach($roomCountYear as $room => $count){
 	$sumToYear = 0;
@@ -147,7 +149,15 @@ foreach($roomCountYear as $room => $count){
 									.",f:'<a href=\"detail.php?r=".$roomIds[$room]."&s=q\">".$sumToYear."</a>'},";
 	$sumToYear += $count[YEAR];
 	$returnString .= "{v:".$sumToYear
-									.",f:'<a href=\"detail.php?r=".$roomIds[$room]."&s=y\">".$sumToYear."</a>'}]},";
+									.",f:'<a href=\"detail.php?r=".$roomIds[$room]."&s=y\">".$sumToYear."</a>'},";
+	$students = implode(',', $studentMap[$room]);
+//	$studentsUL = implode('<br />', $studentMap[$room]);
+	$studentsUL = "";
+	foreach($studentMap[$room] as $student) {
+		$studentsUL .= str_replace(" ","&nbsp;",$student)."<br />";
+	}
+
+ 	$returnString .= "{v:'".$students."', f:'".$studentsUL."'}]},";
 }
 /*
 									."{c:[{v:'Hill 270',f:'Hill 270'},{v:1.0,f:'1'},{v:5.1,f:'5.1'}]},"

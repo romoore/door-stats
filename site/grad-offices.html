@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Room Usage by Date</title>
+    <!--Load the AJAX API-->
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+    
+      // Load the Visualization API and the piechart package.
+      google.load('visualization', '1.0', {'packages':['table']});
+      
+      // Set a callback to run when the Google Visualization API is loaded.
+      google.setOnLoadCallback(drawChart);
+
+
+      // Callback that creates and populates a data table, 
+      // instantiates the pie chart, passes in the data and
+      // draws it.
+      function drawChart(data) {
+
+
+			// Replace the data source URL on next line with your data source URL.
+			// Specify that we want to use the XmlHttpRequest object to make the query.
+			var opts = {sendMethod: 'xhr'};
+			var query = new
+				google.visualization.Query("http://".concat(location.host,"/lcsr-door/grad-stats.php"), opts);
+			
+			// Send the query with a callback function.
+			query.send(handleQueryResponse);
+
+			}
+
+			function handleQueryResponse(response) {
+				if (response.isError()) {
+					alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
+					return;
+				}
+
+				// Set chart options
+				var options = {'title':'Door Usage by Room',
+					'width':800,
+					'alternatingRowStyle':true,
+											 'allowHtml':true};
+				// Instantiate and draw our chart, passing in some options.
+				var chart = new google.visualization.Table(document.getElementById('chart_div'));
+				chart.draw(response.getDataTable(), options);
+			}
+	
+		</script>
+  </head>
+
+  <body>
+<!--Div that will hold the pie chart-->
+    <div id="chart_div" style="width:800; height:640"></div>
+  </body>
+</html>

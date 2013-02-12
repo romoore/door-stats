@@ -55,7 +55,7 @@
 	}
 	$end = 1000 * strtotime($endString);
 	$start = 1000 * strtotime($startString);
-	$owlData = retrieveFromOwl($OWL_URL."range?",$room, $start, $end);
+	$owlData = retrieveFromOwl(OWL_URL."range?",$room, $start, $end);
 	$startDate = DateTime::createFromFormat("U",$start/1000);
 	$startDate->setTimeZone(new DateTimeZone(date_default_timezone_get()));
 	$endDate = DateTime::createFromFormat("U",$end/1000);

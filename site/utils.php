@@ -1,5 +1,7 @@
 <?php
 
+require_once("conn.php");
+
 date_default_timezone_set('America/New_York');
 
 const OLDER = 4;
@@ -269,5 +271,26 @@ function buildRoomDataTable($owlJsonArray, $dateFormat="Y-m-d", $startDate, $end
 	return $returnString;
 
 
+}
+
+function getRoomToStudentsMap(){
+	$rawXml = getRoomXML(ROOM_URL);
+	$xmlDirectory = new SimpleXMLElement($rawXml);
+
+	$personByRoom = array();
+
+	foreach ($xmlDirectory->person as $person){
+		$room = htmlentities((string)$person->room);
+		if(!array_key_exists($room, $personByRoom)){
+			$personByRoom[$room] = array();
+		}
+		$personList = & $personByRoom[$room];
+		$personList[] = htmlentities((string)$person->name);
+	}
+	return $personByRoom;
+}
+
+function getRoomXML($urlPath){
+	return file_get_contents( $urlPath );
 }
 ?>
